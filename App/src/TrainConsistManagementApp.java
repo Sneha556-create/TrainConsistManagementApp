@@ -19,35 +19,43 @@ abstract class Bogie {
 
 // -------------------- Passenger Bogie --------------------
 class PassengerBogie extends Bogie {
-    private int capacity;
+    private int seatingCapacity;
 
-    public PassengerBogie(String id, String type, int capacity) {
+    public PassengerBogie(String id, String type, int seatingCapacity) {
         super(id, type);
-        this.capacity = capacity;
+        this.seatingCapacity = seatingCapacity;
+    }
+
+    public int getCapacity() {
+        return seatingCapacity;
     }
 
     @Override
     public void displayDetails() {
         System.out.println("Passenger Bogie | ID: " + id +
                 ", Type: " + type +
-                ", Capacity: " + capacity);
+                ", Seating Capacity: " + seatingCapacity);
     }
 }
 
 // -------------------- Goods Bogie --------------------
 class GoodsBogie extends Bogie {
-    private String cargoType;
+    private int loadCapacity; // in tons
 
-    public GoodsBogie(String id, String type, String cargoType) {
+    public GoodsBogie(String id, String type, int loadCapacity) {
         super(id, type);
-        this.cargoType = cargoType;
+        this.loadCapacity = loadCapacity;
+    }
+
+    public int getCapacity() {
+        return loadCapacity;
     }
 
     @Override
     public void displayDetails() {
         System.out.println("Goods Bogie | ID: " + id +
                 ", Type: " + type +
-                ", Cargo: " + cargoType);
+                ", Load Capacity: " + loadCapacity + " tons");
     }
 }
 
@@ -61,10 +69,14 @@ class Train {
     // Quick lookup by ID
     private Map<String, Bogie> bogieMap;
 
+    // Map bogie ID → capacity
+    private Map<String, Integer> capacityMap;
+
     public Train(String trainName) {
         this.trainName = trainName;
         this.bogies = new LinkedHashSet<>();
         this.bogieMap = new HashMap<>();
+        this.capacityMap = new HashMap<>();
     }
 
     // ➕ Add bogie
@@ -76,6 +88,14 @@ class Train {
 
         bogies.add(bogie);
         bogieMap.put(bogie.getId(), bogie);
+
+        // Add capacity mapping
+        if (bogie instanceof PassengerBogie) {
+            capacityMap.put(bogie.getId(), ((PassengerBogie) bogie).getCapacity());
+        } else if (bogie instanceof GoodsBogie) {
+            capacityMap.put(bogie.getId(), ((GoodsBogie) bogie).getCapacity());
+        }
+
         System.out.println("✅ Added Bogie: " + bogie.getId());
     }
 
@@ -89,6 +109,7 @@ class Train {
         Bogie b = bogieMap.get(bogieId);
         bogies.remove(b);
         bogieMap.remove(bogieId);
+        capacityMap.remove(bogieId);
 
         System.out.println("Removed Bogie: " + bogieId);
     }
@@ -98,12 +119,20 @@ class Train {
         return bogieMap.containsKey(bogieId);
     }
 
-    // 📋 Display in insertion order
+    // 📋 Display sequence
     public void displayTrainSequence() {
         System.out.println("\n🚆 Train: " + trainName);
         System.out.println("Total Bogies: " + bogies.size());
         for (Bogie b : bogies) {
             b.displayDetails();
+        }
+    }
+
+    // 📊 Display capacity mapping
+    public void displayCapacityMap() {
+        System.out.println("\n📊 Bogie Capacities:");
+        for (String bogieId : capacityMap.keySet()) {
+            System.out.println("Bogie ID: " + bogieId + ", Capacity: " + capacityMap.get(bogieId));
         }
     }
 }
@@ -118,8 +147,8 @@ public class TrainConsistManagementApp {
         // -------------------- Add Bogies --------------------
         train.addBogie(new PassengerBogie("P1", "Sleeper", 72));
         train.addBogie(new PassengerBogie("P2", "AC Chair", 50));
-        train.addBogie(new GoodsBogie("G1", "Rectangular", "Coal"));
-        train.addBogie(new GoodsBogie("G2", "Cylindrical", "Oil"));
+        train.addBogie(new GoodsBogie("G1", "Rectangular", 100));
+        train.addBogie(new GoodsBogie("G2", "Cylindrical", 80));
 
         // Attempt duplicate
         train.addBogie(new PassengerBogie("P2", "First Class", 30));
@@ -127,10 +156,14 @@ public class TrainConsistManagementApp {
         // -------------------- Display Sequence --------------------
         train.displayTrainSequence();
 
+        // -------------------- Display Capacity Mapping --------------------
+        train.displayCapacityMap();
+
         // -------------------- Remove & Re-add --------------------
         train.removeBogie("G1");
-        train.addBogie(new GoodsBogie("G3", "Rectangular", "Grain"));
+        train.addBogie(new GoodsBogie("G3", "Rectangular", 120));
 
         train.displayTrainSequence();
+        train.displayCapacityMap();
     }
 }
