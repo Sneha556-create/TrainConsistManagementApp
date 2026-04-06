@@ -1,1 +1,2 @@
 # TrainConsistManagementApp
+language: java
