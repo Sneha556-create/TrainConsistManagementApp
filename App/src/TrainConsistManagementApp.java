@@ -37,27 +37,45 @@ class PassengerBogie extends Bogie {
 // -------------------- Train --------------------
 class Train {
     private String trainName;
+
+    // Maintains order
     private List<PassengerBogie> passengerBogies;
+
+    // Ensures uniqueness
+    private Set<String> bogieIds;
 
     public Train(String trainName) {
         this.trainName = trainName;
         this.passengerBogies = new ArrayList<>();
+        this.bogieIds = new HashSet<>();
     }
 
-    // ➕ Add bogie
+    // ➕ Add bogie with uniqueness check
     public void addPassengerBogie(PassengerBogie bogie) {
+
+        if (bogieIds.contains(bogie.getId())) {
+            System.out.println("❌ Duplicate Bogie ID not allowed: " + bogie.getId());
+            return;
+        }
+
         passengerBogies.add(bogie);
-        System.out.println("Added Bogie: " + bogie.getId());
+        bogieIds.add(bogie.getId());
+
+        System.out.println("✅ Added Bogie: " + bogie.getId());
     }
 
-    // ❌ Remove bogie by ID
+    // ❌ Remove bogie
     public void removePassengerBogie(String bogieId) {
+
         Iterator<PassengerBogie> iterator = passengerBogies.iterator();
 
         while (iterator.hasNext()) {
             PassengerBogie b = iterator.next();
+
             if (b.getId().equals(bogieId)) {
                 iterator.remove();
+                bogieIds.remove(bogieId);
+
                 System.out.println("Removed Bogie: " + bogieId);
                 return;
             }
@@ -66,17 +84,12 @@ class Train {
         System.out.println("Bogie not found: " + bogieId);
     }
 
-    // 🔍 Check existence
+    // 🔍 Check existence (O(1) using Set)
     public boolean containsBogie(String bogieId) {
-        for (PassengerBogie b : passengerBogies) {
-            if (b.getId().equals(bogieId)) {
-                return true;
-            }
-        }
-        return false;
+        return bogieIds.contains(bogieId);
     }
 
-    // 📋 Display all bogies
+    // 📋 Display
     public void displayPassengerBogies() {
         System.out.println("\n🚆 Train: " + trainName);
         System.out.println("Passenger Bogies Count: " + passengerBogies.size());
@@ -95,21 +108,24 @@ public class TrainConsistManagementApp {
         Train train = new Train("Express Line");
 
         // -------------------- Add Bogies --------------------
-        train.addPassengerBogie(new PassengerBogie("P1", "Sleeper", 72));
-        train.addPassengerBogie(new PassengerBogie("P2", "AC Chair", 50));
-        train.addPassengerBogie(new PassengerBogie("P3", "First Class", 30));
+        train.addPassengerBogie(new PassengerBogie("BG101", "Sleeper", 72));
+        train.addPassengerBogie(new PassengerBogie("BG102", "AC Chair", 50));
+
+        // Attempt duplicate
+        train.addPassengerBogie(new PassengerBogie("BG101", "First Class", 30));
 
         train.displayPassengerBogies();
 
         // -------------------- Check Existence --------------------
-        System.out.println("\nCheck Bogie P2: " + train.containsBogie("P2"));
-        System.out.println("Check Bogie P5: " + train.containsBogie("P5"));
+        System.out.println("\nCheck BG101: " + train.containsBogie("BG101"));
+        System.out.println("Check BG999: " + train.containsBogie("BG999"));
 
-        // -------------------- Remove Bogie --------------------
-        train.removePassengerBogie("P2");
-        train.removePassengerBogie("P5"); // not exists
+        // -------------------- Remove --------------------
+        train.removePassengerBogie("BG102");
 
-        // -------------------- Final State --------------------
+        // Add again after removal (should work)
+        train.addPassengerBogie(new PassengerBogie("BG102", "First Class", 30));
+
         train.displayPassengerBogies();
     }
 }
