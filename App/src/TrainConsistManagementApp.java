@@ -55,57 +55,53 @@ class GoodsBogie extends Bogie {
 class Train {
     private String trainName;
 
-    // Maintains order of bogies
-    private LinkedList<Bogie> bogies;
+    // Preserve insertion order + uniqueness
+    private LinkedHashSet<Bogie> bogies;
 
-    // Ensures uniqueness
-    private Set<String> bogieIds;
+    // Quick lookup by ID
+    private Map<String, Bogie> bogieMap;
 
     public Train(String trainName) {
         this.trainName = trainName;
-        this.bogies = new LinkedList<>();
-        this.bogieIds = new HashSet<>();
+        this.bogies = new LinkedHashSet<>();
+        this.bogieMap = new HashMap<>();
     }
 
-    // ➕ Add bogie at the end
+    // ➕ Add bogie
     public void addBogie(Bogie bogie) {
-        if (bogieIds.contains(bogie.getId())) {
+        if (bogieMap.containsKey(bogie.getId())) {
             System.out.println("❌ Duplicate Bogie ID not allowed: " + bogie.getId());
             return;
         }
 
         bogies.add(bogie);
-        bogieIds.add(bogie.getId());
+        bogieMap.put(bogie.getId(), bogie);
         System.out.println("✅ Added Bogie: " + bogie.getId());
     }
 
     // ❌ Remove bogie by ID
     public void removeBogie(String bogieId) {
-        Iterator<Bogie> iterator = bogies.iterator();
-
-        while (iterator.hasNext()) {
-            Bogie b = iterator.next();
-            if (b.getId().equals(bogieId)) {
-                iterator.remove();
-                bogieIds.remove(bogieId);
-                System.out.println("Removed Bogie: " + bogieId);
-                return;
-            }
+        if (!bogieMap.containsKey(bogieId)) {
+            System.out.println("Bogie not found: " + bogieId);
+            return;
         }
 
-        System.out.println("Bogie not found: " + bogieId);
+        Bogie b = bogieMap.get(bogieId);
+        bogies.remove(b);
+        bogieMap.remove(bogieId);
+
+        System.out.println("Removed Bogie: " + bogieId);
     }
 
     // 🔍 Check existence
     public boolean containsBogie(String bogieId) {
-        return bogieIds.contains(bogieId);
+        return bogieMap.containsKey(bogieId);
     }
 
-    // 📋 Display sequence of bogies
+    // 📋 Display in insertion order
     public void displayTrainSequence() {
         System.out.println("\n🚆 Train: " + trainName);
         System.out.println("Total Bogies: " + bogies.size());
-
         for (Bogie b : bogies) {
             b.displayDetails();
         }
