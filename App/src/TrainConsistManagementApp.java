@@ -10,11 +10,11 @@ abstract class Bogie {
         this.type = type;
     }
 
-    public abstract void displayDetails();
-
-    public String getType() {
-        return type;
+    public String getId() {
+        return id;
     }
+
+    public abstract void displayDetails();
 }
 
 // -------------------- Passenger Bogie --------------------
@@ -34,80 +34,82 @@ class PassengerBogie extends Bogie {
     }
 }
 
-// -------------------- Goods Bogie --------------------
-class GoodsBogie extends Bogie {
-    private String cargoType;
-
-    public GoodsBogie(String id, String type, String cargoType) {
-        super(id, type);
-        this.cargoType = cargoType;
-    }
-
-    @Override
-    public void displayDetails() {
-        System.out.println("Goods Bogie | ID: " + id +
-                ", Type: " + type +
-                ", Cargo: " + cargoType);
-    }
-}
-
 // -------------------- Train --------------------
 class Train {
     private String trainName;
-    private List<Bogie> bogies;
+    private List<PassengerBogie> passengerBogies;
 
     public Train(String trainName) {
         this.trainName = trainName;
-        this.bogies = new ArrayList<>();
+        this.passengerBogies = new ArrayList<>();
     }
 
-    public void addBogie(Bogie bogie) {
-        bogies.add(bogie);
+    // ➕ Add bogie
+    public void addPassengerBogie(PassengerBogie bogie) {
+        passengerBogies.add(bogie);
+        System.out.println("Added Bogie: " + bogie.getId());
     }
 
-    public void displaySummary() {
-        System.out.println("\n🚆 Train: " + trainName);
-        System.out.println("Total Bogies: " + bogies.size());
+    // ❌ Remove bogie by ID
+    public void removePassengerBogie(String bogieId) {
+        Iterator<PassengerBogie> iterator = passengerBogies.iterator();
 
-        int passengerCount = 0;
-        int goodsCount = 0;
-
-        for (Bogie b : bogies) {
-            if (b instanceof PassengerBogie) {
-                passengerCount++;
-            } else if (b instanceof GoodsBogie) {
-                goodsCount++;
+        while (iterator.hasNext()) {
+            PassengerBogie b = iterator.next();
+            if (b.getId().equals(bogieId)) {
+                iterator.remove();
+                System.out.println("Removed Bogie: " + bogieId);
+                return;
             }
         }
 
-        System.out.println("Passenger Bogies: " + passengerCount);
-        System.out.println("Goods Bogies: " + goodsCount);
+        System.out.println("Bogie not found: " + bogieId);
+    }
 
-        System.out.println("\n--- Bogie Details ---");
-        for (Bogie b : bogies) {
+    // 🔍 Check existence
+    public boolean containsBogie(String bogieId) {
+        for (PassengerBogie b : passengerBogies) {
+            if (b.getId().equals(bogieId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 📋 Display all bogies
+    public void displayPassengerBogies() {
+        System.out.println("\n🚆 Train: " + trainName);
+        System.out.println("Passenger Bogies Count: " + passengerBogies.size());
+
+        for (PassengerBogie b : passengerBogies) {
             b.displayDetails();
         }
     }
 }
 
 // -------------------- Main Application --------------------
-public class TrainConsistManagementgit add .App {
+public class TrainConsistManagementApp {
 
     public static void main(String[] args) {
 
-        // Step 1: Initialize Train
         Train train = new Train("Express Line");
 
-        // Step 2: Add Passenger Bogies
-        train.addBogie(new PassengerBogie("P1", "Sleeper", 72));
-        train.addBogie(new PassengerBogie("P2", "AC Chair", 50));
-        train.addBogie(new PassengerBogie("P3", "First Class", 30));
+        // -------------------- Add Bogies --------------------
+        train.addPassengerBogie(new PassengerBogie("P1", "Sleeper", 72));
+        train.addPassengerBogie(new PassengerBogie("P2", "AC Chair", 50));
+        train.addPassengerBogie(new PassengerBogie("P3", "First Class", 30));
 
-        // Step 3: Add Goods Bogies
-        train.addBogie(new GoodsBogie("G1", "Rectangular", "Coal"));
-        train.addBogie(new GoodsBogie("G2", "Cylindrical", "Oil"));
+        train.displayPassengerBogies();
 
-        // Step 4: Display Summary
-        train.displaySummary();
+        // -------------------- Check Existence --------------------
+        System.out.println("\nCheck Bogie P2: " + train.containsBogie("P2"));
+        System.out.println("Check Bogie P5: " + train.containsBogie("P5"));
+
+        // -------------------- Remove Bogie --------------------
+        train.removePassengerBogie("P2");
+        train.removePassengerBogie("P5"); // not exists
+
+        // -------------------- Final State --------------------
+        train.displayPassengerBogies();
     }
 }
