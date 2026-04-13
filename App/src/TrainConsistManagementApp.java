@@ -1,38 +1,43 @@
 import java.util.*;
-import java.util.stream.*;
-
-class Bogie {
-    String name;
-    int capacity;
-
-    // Constructor
-    Bogie(String name, int capacity) {
-        this.name = name;
-        this.capacity = capacity;
-    }
-
-    // Display format
-    public String toString() {
-        return name + " - Capacity: " + capacity;
-    }
-}
+import java.util.regex.*;
 
 public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
-        // Create list of bogies
-        List<Bogie> bogies = new ArrayList<>();
-        bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("AC Chair", 50));
-        bogies.add(new Bogie("First Class", 30));
-        bogies.add(new Bogie("General", 90));
+        Scanner sc = new Scanner(System.in);
 
-        // Stream pipeline: map + reduce
-        int totalCapacity = bogies.stream()
-                .map(b -> b.capacity)          // extract capacities
-                .reduce(0, Integer::sum);      // sum all values
+        // Input from user
+        System.out.print("Enter Train ID: ");
+        String trainId = sc.nextLine();
 
-        // Display result
-        System.out.println("Total Seating Capacity: " + totalCapacity);
+        System.out.print("Enter Cargo Code: ");
+        String cargoCode = sc.nextLine();
+
+        // Define regex patterns
+        String trainPatternStr = "TRN-\\d{4}";
+        String cargoPatternStr = "PET-[A-Z]{2}";
+
+        // Compile patterns
+        Pattern trainPattern = Pattern.compile(trainPatternStr);
+        Pattern cargoPattern = Pattern.compile(cargoPatternStr);
+
+        // Create matchers
+        Matcher trainMatcher = trainPattern.matcher(trainId);
+        Matcher cargoMatcher = cargoPattern.matcher(cargoCode);
+
+        // Validate using matches()
+        if (trainMatcher.matches()) {
+            System.out.println("Train ID is VALID");
+        } else {
+            System.out.println("Train ID is INVALID");
+        }
+
+        if (cargoMatcher.matches()) {
+            System.out.println("Cargo Code is VALID");
+        } else {
+            System.out.println("Cargo Code is INVALID");
+        }
+
+        sc.close();
     }
 }
