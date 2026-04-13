@@ -11,16 +11,9 @@ class Bogie {
         this.capacity = capacity;
     }
 
-    // Method to categorize bogies based on capacity
-    public String getCategory() {
-        if (capacity >= 70) return "High Capacity";
-        else if (capacity >= 40) return "Medium Capacity";
-        else return "Low Capacity";
-    }
-
     // Display format
     public String toString() {
-        return name + " (" + capacity + ")";
+        return name + " - Capacity: " + capacity;
     }
 }
 
@@ -34,17 +27,12 @@ public class TrainConsistManagementApp {
         bogies.add(new Bogie("First Class", 30));
         bogies.add(new Bogie("General", 90));
 
-        // Group bogies using Stream API
-        Map<String, List<Bogie>> groupedBogies = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.getCategory()));
+        // Stream pipeline: map + reduce
+        int totalCapacity = bogies.stream()
+                .map(b -> b.capacity)          // extract capacities
+                .reduce(0, Integer::sum);      // sum all values
 
-        // Display grouped result
-        System.out.println("Grouped Bogies:");
-        for (String category : groupedBogies.keySet()) {
-            System.out.println(category + ":");
-            for (Bogie b : groupedBogies.get(category)) {
-                System.out.println("  " + b);
-            }
-        }
+        // Display result
+        System.out.println("Total Seating Capacity: " + totalCapacity);
     }
 }
